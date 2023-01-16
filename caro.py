@@ -11,6 +11,8 @@ icon = pygame.image.load(r'assets/eww.jpg')
 pygame.display.set_icon(icon)
 
 # cua so game
+
+#question_screen = pygame.display.set_mode((300,270))
 screen = pygame.display.set_mode((1280,720))
 WIDTH, HEIGHT = 1280, 720
 #bg
@@ -18,17 +20,20 @@ bg=pygame.image.load(r'assets/mainmenu.png')
 bg=pygame.transform.scale(bg,(1280,720))
 win_bg=pygame.image.load('assets/winner_background3.png')
 win_bg=pygame.transform.scale(win_bg,(1280,720))
+question_bg = pygame.image.load(r'assets/exit_question.png')
 banco=pygame.image.load(r'assets/tempboard.png')
 #banco=pygame.transform.scale(banco,(1280,720))
 cox=pygame.image.load(r'assets/x.png')
 coo=pygame.image.load(r'assets/o.png')
+xwin=pygame.image.load(r'assets/XWIN.png')
+owin=pygame.image.load(r'assets/OWIN.png')
 nenbanco=pygame.image.load(r'assets/background.png')
 nenbanco=pygame.transform.scale(nenbanco,(1280,720))
 settingbg=pygame.image.load(r'assets/settingbg.png')
 settingbg=pygame.transform.scale(settingbg,(1280,720))
 pt=pygame.image.load(r'assets/1151373.png')
 pt=pygame.transform.scale(pt,(1280,720))
-
+won = False
 # fps
 clock = pygame.time.Clock()
 #music 
@@ -67,7 +72,7 @@ ok_play = True
 ok_about = True
 ok_setting =True
 wide = 54
-
+time_win=0
 def intro():
     global time_skip
     vid = Video("music/intro vcl wtf.mp4")
@@ -83,8 +88,7 @@ def intro():
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
+                exit_question()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if PLAY_BACK.checkForInput(SKIP_MOUSE_POS):
                     vid.close()
@@ -140,8 +144,7 @@ def ld():
         global loading_bar
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
+                exit_question()
 
         screen.fill("#0d0e2e")
         if not loading_finished:
@@ -179,8 +182,7 @@ def AI():
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
+                exit_question()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if PLAY_BACK.checkForInput(PLAY_MOUSE_POS):                        
                         play()
@@ -213,8 +215,7 @@ def play():
             
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    pygame.quit()
-                    sys.exit()
+                    exit_question()
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if PLAY_BACK.checkForInput(PLAY_MOUSE_POS):
                         ok_play =True
@@ -249,8 +250,7 @@ def about():
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    pygame.quit()
-                    sys.exit()
+                    exit_question()
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if PLAY_BACK.checkForInput(PLAY_MOUSE_POS):
                         ok_about =True
@@ -316,8 +316,7 @@ def setting():
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                        pygame.quit()
-                        sys.exit()
+                        exit_question()
                 if event.type == pygame.MOUSEBUTTONDOWN:
                         if SETTING_BACK.checkForInput(PLAY_MOUSE_POS):
                             ok_setting =True
@@ -349,12 +348,21 @@ def inxo():
                 screen.blit(cox,(370+i*wide+5, 5+100+j*wide))
             if board[i+1][j+1] == 2:
                 screen.blit(coo,(370+i*wide+5, 5+ 100+j*wide))
+            if board[i+1][j+1] == 3:
+                screen.blit(xwin,(370+i*wide+5, 5+100+j*wide))
+            if board[i+1][j+1] == 4:
+                screen.blit(owin,(370+i*wide+5, 5+ 100+j*wide))
+
             
                 
 def reset():
     global turn
     global base_turn
     global board
+    global time_win
+    global won
+    won = False
+    time_win=0
     turn = base_turn
     board = [[0,0,0,0,0,0,0,0,0,0,0,0], 
              [0,0,0,0,0,0,0,0,0,0,0,0],
@@ -368,8 +376,8 @@ def reset():
              [0,0,0,0,0,0,0,0,0,0,0,0],
              [0,0,0,0,0,0,0,0,0,0,0,0],
              [0,0,0,0,0,0,0,0,0,0,0,0]]
-    screen.blit(nenbanco, (0, 0)) 
-    screen.blit(banco, (370, 100)) 
+    #screen.blit(nenbanco, (0, 0)) 
+    #screen.blit(banco, (370, 100)) 
     inxo()
 
 
@@ -398,6 +406,8 @@ def check_win():
                 else:
                     cnt=0
                 if cnt==5:
+                    for t in range(j-5+1,j+1):
+                        board[i][t]=p+2
                     return p
         #check col
         for j in range(11):
@@ -408,6 +418,8 @@ def check_win():
                 else:
                     cnt=0
                 if cnt==5:
+                    for t in range(i-5+1,i+1):
+                        board[t][j]=p+2
                     return p
         #check cheo chinh
         for i in range(0, 8):
@@ -418,6 +430,8 @@ def check_win():
                         ok=False
                         break
                 if ok==True:
+                    for t in range(0, 5):
+                        board[i+t][j+t]=p+2
                     return p
         #check cheo phu
         for i in range(0, 8):
@@ -428,8 +442,44 @@ def check_win():
                         ok=False
                         break
                 if ok==True:
+                    for t in range(0, 5):
+                        board[i+t][11-j-t] = p+2
                     return p
     return 0
+
+
+def victory(win , name1, name2):
+    global time_win
+    amount_win = 0
+    while True:
+        check =0
+        ok_check = False
+        if win == 1:
+            main_win=xwin
+        else:
+            main_win=owin
+        for i in range(10):
+            for j in range(10):
+                if board[i+1][j+1]== (win +2):
+                    check +=1
+                if board[i+1][j+1] == (win +2) and time_win % 30 == 0 and check == (amount_win+1) and ok_check == False:
+                    amount_win +=1
+                    ok_check = True
+                    screen.blit(main_win,(370+i*wide+5, 5+100+j*wide))
+
+        
+
+
+        time_win +=1
+        if time_win == 151:
+            show_winner(win, name1,name2)
+        pygame.display.update()
+        clock.tick(60)
+
+
+
+
+
 
 def show_winner(w, name1, name2):
     while True: 
@@ -440,34 +490,28 @@ def show_winner(w, name1, name2):
 
         winner_text=pygame.image.load("assets/cooltext426714998961489.png")
 
-        home_BUTTON = Button(image=pygame.image.load("assets/Play Rect - Copy.png"), pos=(640,600), 
-                        text_input="HOME", font=get_font(30), base_color="cyan", hovering_color="hotpink")
-        reset_BUTTON = Button(image=pygame.image.load("assets/Play Rect - Copy.png"), pos=(640,670), 
-                        text_input="RESET", font=get_font(30), base_color="cyan", hovering_color="hotpink")
+        reset_BUTTON = Button(image=pygame.image.load("assets/Play Rect - Copy.png"), pos=(640,600), 
+                        text_input="OK", font=get_font(30), base_color="cyan", hovering_color="hotpink")
 
         PLAY_MOUSE_POS = pygame.mouse.get_pos()
-        for button in [ home_BUTTON, reset_BUTTON]:
+        for button in [ reset_BUTTON]:
             button.changeColor(PLAY_MOUSE_POS)
             button.update(screen)    
-
-
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                if home_BUTTON.checkForInput(PLAY_MOUSE_POS):
-                    reset()
-                    main()  
-                if reset_BUTTON.checkForInput(PLAY_MOUSE_POS):
-                    reset()
-                    show_user_name(name1,name2) 
-                                         
         if w==1:
             screen.blit(p1, (545, 200))
         else:
             screen.blit(p2, (440, 200))
         screen.blit(winner_text, (460, 450))
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                exit_question()
+            if event.type == pygame.MOUSEBUTTONDOWN:  
+                if reset_BUTTON.checkForInput(PLAY_MOUSE_POS):
+                    show_user_name(name1,name2) 
+                    
+                                         
+        
         pygame.display.update()
         clock.tick(120)  
 def show_user_name(user_name1, user_name2 ):
@@ -483,34 +527,40 @@ def show_user_name(user_name1, user_name2 ):
     global goku1
     global goku2
     global goku_turn
-    
+    global won
     turn = base_turn
 
     while True:
         PLAY_MOUSE_POS = pygame.mouse.get_pos()
         PLAY_BACK = Button(image=pygame.image.load("assets/HOME.png"), pos=(110, 40), 
                                     text_input=None, font=get_font(30), base_color="cyan", hovering_color="hotpink")      
-        
+        if won == True:
+            tam="AGAIN"
+        else:
+            tam="RESET"
         reset_BUTTON = Button(image=pygame.image.load("assets/Play Rect - Copy.png"), pos=(640,670), 
-                            text_input="RESET", font=get_font(30), base_color="cyan", hovering_color="hotpink")
+                            text_input=tam, font=get_font(30), base_color="cyan", hovering_color="hotpink")
         
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
+                exit_question()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if reset_BUTTON.checkForInput(PLAY_MOUSE_POS):                        
                         reset()
                 current_pos = pygame.mouse.get_pos()
                 x=current_pos[0]
                 y=current_pos[1]
-                if x > 370 and x < (370+540)   and y > 100 and y <640 :
-                    
+                if x > 370 and x < (370+540)   and y > 100 and y <640  and won == False:
+                   
                     if checkxy(x,y, turn%2) == True:  
-
                         turn +=1 
                         if turn == 1000000:
-                            turn =0        
+                            turn =0 
+                        inxo()
+                        winner=check_win()
+                        if winner!=0:
+                            won=True
+                            victory(winner, user_name1, user_name2)       
             if event.type == pygame.MOUSEBUTTONDOWN:
                     if PLAY_BACK.checkForInput(PLAY_MOUSE_POS):
                         reset()
@@ -522,9 +572,7 @@ def show_user_name(user_name1, user_name2 ):
 
         inxo()  
         #check win 
-        winner=check_win()
-        if winner!=0:
-            show_winner(winner, user_name1, user_name2)
+        
 
         if turn%2==1:
             uu= "assets/Play Rect.png"
@@ -607,14 +655,12 @@ def get_user_name1():
                 if PLAY_BACK.checkForInput(PLAY_MOUSE_POS):                        
                         play()
             if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
+                exit_question()
             if (event.type == pygame_gui.UI_TEXT_ENTRY_FINISHED and
                 event.ui_object_id == '#main_text_entry'):
                 get_user_name2(event.text)
             if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
+                exit_question()
             
                                                
             manager1.process_events(event)        
@@ -646,8 +692,7 @@ def get_user_name2(namethangdautien):
                 if PLAY_BACK.checkForInput(PLAY_MOUSE_POS):                        
                         get_user_name1()
             if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
+                exit_question()
             if (event.type == pygame_gui.UI_TEXT_ENTRY_FINISHED and
                 event.ui_object_id == '#main_text_entry'):
                     namethangthuhai = event.text
@@ -667,10 +712,45 @@ def get_user_name2(namethangdautien):
  
 #nhac.play(loops = -1)
 #vong lap xu ly game
+run = True
+
+def exit_question():
+    global run
+    while True:
+        screen.blit(question_bg,(490,200))
+        MENU_MOUSE_POS = pygame.mouse.get_pos()
+        
+        
+        YES_BUTTON = Button(image=pygame.image.load("assets/exit.png"), pos=(490+150, 290), 
+                            text_input="YES", font=get_font(25), base_color="cyan", hovering_color="hotpink")
+        NO_BUTTON = Button(image=pygame.image.load("assets/exit.png"), pos=(490+150, 350), 
+                            text_input="NO", font=get_font(25), base_color="cyan", hovering_color="hotpink")
+        for button in [YES_BUTTON, NO_BUTTON]:
+            button.changeColor(MENU_MOUSE_POS)
+            button.update(screen)  
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                    if YES_BUTTON.checkForInput(MENU_MOUSE_POS):                        
+                        pygame.quit()
+                        sys.exit()
+                    if NO_BUTTON.checkForInput(MENU_MOUSE_POS):
+                        return
+                    
+       
+        pygame.display.update()
+        clock.tick(60)
+
+
+
+
 
 def main(): 
-    run = True
+    
     global ham
+    global run
     while run:
         
         screen.blit(bg, (0, 0))
@@ -691,7 +771,7 @@ def main():
             button.update(screen)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                run =False 
+                exit_question() 
             
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if PLAY_BUTTON.checkForInput(MENU_MOUSE_POS):
@@ -704,8 +784,7 @@ def main():
                     ham=3
                     setting()          
                 if QUIT_BUTTON.checkForInput(MENU_MOUSE_POS):
-                        pygame.quit()
-                        sys.exit()
+                        exit_question()
         pygame.display.update()
         clock.tick(120)
     #pygame.quit()

@@ -1,125 +1,39 @@
-import random
+       
+def play():
+    
+    global ok_play
+    global loading_finished
+    while True:
+        if ok_play:
+            ok_play=False
+            ld()
+        else:
+            screen.blit(bg, (0, 0))
 
-print("Welcome to Tic Tac Toe")
-print("----------------------")
+            PLAY_MOUSE_POS = pygame.mouse.get_pos()
+            AI_BUTTON = Button(image=pygame.image.load("assets/Play Rect.png"), pos=(640, 350), 
+                                text_input="VS AI", font=get_font(30), base_color="#d7fcd4", hovering_color="hotpink")
+            PVP_BUTTON = Button(image=pygame.image.load("assets/Play Rect.png"), pos=(640, 420), 
+                                text_input="PVP", font=get_font(30), base_color="#d7fcd4", hovering_color="hotpink")
+            PLAY_BACK = Button(image=None, pos=(110, 40), 
+                                    text_input="BACK", font=get_font(30), base_color="cyan", hovering_color="hotpink")
 
-possibleNumbers = [1,2,3,4,5,6,7,8,9]
-gameBoard = [[1,2,3], [4,5,6], [7,8,9]]
-rows = 3
-cols = 3
-
-def printGameBoard():
-  for x in range(rows):
-    print("\n+---+---+---+")
-    print("|", end="")
-    for y in range(cols):
-      print("", gameBoard[x][y], end=" |")
-  print("\n+---+---+---+")
-
-def modifyArray(num, turn):
-  num -= 1
-  if(num == 0):
-    gameBoard[0][0] = turn
-  elif(num == 1):
-    gameBoard[0][1] = turn
-  elif(num == 2):
-    gameBoard[0][2] = turn
-  elif(num == 3):
-    gameBoard[1][0] = turn
-  elif(num == 4):
-    gameBoard[1][1] = turn
-  elif(num == 5):
-    gameBoard[1][2] = turn
-  elif(num == 6):
-    gameBoard[2][0] = turn
-  elif(num == 7):
-    gameBoard[2][1] = turn
-  elif(num == 8):
-    gameBoard[2][2] = turn
-
-### Define function to check for a winner
-def checkForWinner(gameBoard):
-  ### X axis
-  if(gameBoard[0][0] == 'X' and gameBoard[0][1] == 'X' and gameBoard[0][2] == 'X'):
-    print("X has won!")
-    return "X"
-  elif(gameBoard[0][0] == 'O' and gameBoard[0][1] == 'O' and gameBoard[0][2] == 'O'):
-    print("O has won!")
-    return "O"
-  elif(gameBoard[1][0] == 'X' and gameBoard[1][1] == 'X' and gameBoard[1][2] == 'X'):
-    print("X has won!")
-    return "X"
-  elif(gameBoard[1][0] == 'O' and gameBoard[1][1] == 'O' and gameBoard[1][2] == 'O'):
-    print("O has won!")
-    return "O"
-  elif(gameBoard[2][0] == 'X' and gameBoard[2][1] == 'X' and gameBoard[2][2] == 'X'):
-    print("X has won!")
-    return "X"
-  elif(gameBoard[2][0] == 'O' and gameBoard[2][1] == 'O' and gameBoard[2][2] == 'O'):
-    print("O has won!")
-    return "O"
-  ### Y axis
-  if(gameBoard[0][0] == 'X' and gameBoard[1][0] == 'X' and gameBoard[2][0] == 'X'):
-    print("X has won!")
-    return "X"
-  elif(gameBoard[0][0] == 'O' and gameBoard[1][0] == 'O' and gameBoard[2][0] == 'O'):
-    print("O has won!")
-    return "O"
-  elif(gameBoard[0][1] == 'X' and gameBoard[1][1] == 'X' and gameBoard[2][1] == 'X'):
-    print("X has won!")
-    return "X"
-  elif(gameBoard[0][1] == 'O' and gameBoard[1][1] == 'O' and gameBoard[2][1] == 'O'):
-    print("O has won!")
-    return "O"
-  elif(gameBoard[0][2] == 'X' and gameBoard[1][2] == 'X' and gameBoard[2][2] == 'X'):
-    print("X has won!")
-    return "X"
-  elif(gameBoard[0][2] == 'O' and gameBoard[1][2] == 'O' and gameBoard[2][2] == 'O'):
-    print("O has won!")
-    return "O"
-  ### Cross wins
-  elif(gameBoard[0][0] == 'X' and gameBoard[1][1] == 'X' and gameBoard[2][2] == 'X'):
-    print("X has won!")
-    return "X"
-  elif(gameBoard[0][0] == 'O' and gameBoard[1][1] == 'O' and gameBoard[2][2] == 'O'):
-    print("O has won!")  
-    return "O"
-  elif(gameBoard[0][2] == 'X' and gameBoard[1][1] == 'X' and gameBoard[2][0] == 'X'):
-    print("X has won!")  
-    return "X"
-  elif(gameBoard[0][2] == 'O' and gameBoard[1][1] == 'O' and gameBoard[2][0] == 'O'):
-    print("O has won!") 
-    return "O" 
-  else:
-    return "N"
-
-leaveLoop = False
-turnCounter = 0
-
-while(leaveLoop == False):
-  ### It's the player turn
-  if(turnCounter % 2 == 0):
-    printGameBoard()
-    numberPicked = int(input("\nChoose a number [1-9]: "))
-    if(numberPicked >= 1 or numberPicked <= 9):
-      modifyArray(numberPicked, 'X')
-      possibleNumbers.remove(numberPicked)
-    else:
-      print("Invalid input. Please try again.")
-    turnCounter += 1
-  ### It's the computer's turn
-  else:
-    while(True):
-      cpuChoice = random.choice(possibleNumbers)
-      print("\nCpu choice: ", cpuChoice)
-      if(cpuChoice in possibleNumbers):
-        modifyArray(cpuChoice, 'O')
-        possibleNumbers.remove(cpuChoice)
-        turnCounter += 1
-        break
-  
-  winner = checkForWinner(gameBoard)
-  if(winner != "N"):
-    print("\nGame over! Thank you for playing :)")
-    break
-  
+            for button in [AI_BUTTON, PVP_BUTTON ,PLAY_BACK]:
+                button.changeColor(PLAY_MOUSE_POS)
+                button.update(screen)
+            
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    sys.exit()
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if PLAY_BACK.checkForInput(PLAY_MOUSE_POS):
+                        ok_play =True
+                        loading_finished = False
+                        main()
+                    if PVP_BUTTON.checkForInput(PLAY_MOUSE_POS):
+                        get_user_name1()
+                    if AI_BUTTON.checkForInput(PLAY_MOUSE_POS):
+                        AI()
+        clock.tick(120)
+        pygame.display.update()
